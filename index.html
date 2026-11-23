@@ -565,6 +565,53 @@ body[data-theme="hutan"] h1{text-shadow:0 0 14px rgba(125,255,192,.75),0 0 34px 
   }
   document.addEventListener('click', onGesture, true);
   document.addEventListener('touchend', onGesture, true);
+
+  /* ---------- bunyi butang (klik) ---------- */
+  var lastSfx = 0;
+  function sfx(kind){
+    if(!soundOn) return;
+    if(curScreen !== 's-game' && !musicOn) return;
+    var now = Date.now(); if(now - lastSfx < 45) return; lastSfx = now;
+    var a = actx(); if(!a) return;
+    var t = a.currentTime + 0.01;
+    if(kind === 'go'){
+      tone(a, 'triangle', 440, 620, t, 0.10, 0.17);
+      tone(a, 'triangle', 660, 880, t + 0.075, 0.14, 0.17);
+    } else if(kind === 'back'){
+      tone(a, 'triangle', 540, 330, t, 0.11, 0.15);
+    } else if(kind === 'up'){
+      tone(a, 'triangle', 700, 820, t, 0.07, 0.15);
+    } else if(kind === 'down'){
+      tone(a, 'triangle', 600, 500, t, 0.07, 0.15);
+    } else if(kind === 'pick'){
+      tone(a, 'sine', 520, 540, t, 0.08, 0.2);
+      tone(a, 'sine', 780, 800, t + 0.06, 0.1, 0.16);
+    } else if(kind === 'flip'){
+      tone(a, 'sine', 260, 900, t, 0.2, 0.14);
+      tone(a, 'triangle', 1318, 1318, t + 0.14, 0.3, 0.1);
+    } else {
+      tone(a, 'triangle', 640, 430, t, 0.07, 0.16);
+      tone(a, 'sine', 1280, 860, t, 0.05, 0.05);
+    }
+  }
+  var SFX_SEL = 'button,[data-act],[data-th],[data-md],#cardHidden,[data-back],[data-backno],[data-backyes],.mopt';
+  var SFX_GO = {start:1, begin:1, resume:1, thYes:1, mdYes:1};
+  var SFX_BACK = {thNo:1, mdNo:1, helpClose:1, helpCloseSolo:1};
+  var ACT_GO = {vstart:1, vconfirm:1, results:1, nextnight:1, startturn:1, again:1, menuyes:1, endyes:1};
+  var ACT_BACK = {menuno:1, endno:1, tosettings:1, settings:1, end:1, prev:1};
+  document.addEventListener('click', function(e){
+    var t = e.target; if(!t || !t.closest) return;
+    var el = t.closest(SFX_SEL); if(!el) return;
+    if(el.disabled || el.classList.contains('disabled')) return;
+    var id = el.id, act = el.dataset ? el.dataset.act : '', kind = 'tap';
+    if(id === 'cardHidden') kind = 'flip';
+    else if(el.dataset && el.dataset.d) kind = (parseInt(el.dataset.d,10) > 0) ? 'up' : 'down';
+    else if(act === 'pick' || act === 'vpick') kind = 'pick';
+    else if(SFX_GO[id] || ACT_GO[act]) kind = 'go';
+    else if(SFX_BACK[id] || ACT_BACK[act] || el.hasAttribute('data-backno') || el.hasAttribute('data-back')) kind = 'back';
+    if(act === 'snd' || id === 'musicBtn'){ setTimeout(function(){ sfx('tap'); }, 0); }
+    else sfx(kind);
+  }, true);
   $('musicBtn').addEventListener('click', function(){
     musicOn = !musicOn;
     try{ localStorage.setItem('mafia-music', musicOn?'1':'0'); }catch(e){}
