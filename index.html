@@ -409,10 +409,10 @@ body[data-theme="hutan"] h1{text-shadow:0 0 14px rgba(125,255,192,.75),0 0 34px 
   }
   document.addEventListener('visibilitychange', syncWake);
 
-  /* ---------- nota kredit: penuh di menu utama sahaja ---------- */
+  /* ---------- nota kredit: sama di semua skrin ---------- */
   function syncCredit(){
     var el = $('credit'); if(!el) return;
-    var full = (curScreen === 's-setup');
+    var full = true;
     el.className = full ? 'credit full' : 'credit';
     el.textContent = full ? '© 2026 @nadasara256. ' + T('Hak cipta terpelihara.') : '@nadasara256';
   }
